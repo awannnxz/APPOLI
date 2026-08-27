@@ -21,11 +21,17 @@
       <div class="logo-sub">MANAJEMEN MUTU BERBASIS ELEKTRONIK (MMBE)</div>
     </div>
   </div>
-  <div class="nav-links">
-    <a href="#home"    class="active" id="nav-home">HOME</a>
-    <a href="#tentang" id="nav-tentang">TENTANG</a>
-    <a href="#produk"  id="nav-produk">PRODUK</a>
-    <a href="#contact" id="nav-contact">CONTACT</a>
+
+  <!-- Tombol hamburger, cuma muncul di layar kecil -->
+  <button class="nav-toggle" id="navToggle" onclick="toggleNav()" aria-label="Buka menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="nav-links" id="navLinks">
+    <a href="#home"    class="active" id="nav-home"    onclick="closeNav()">HOME</a>
+    <a href="#tentang" id="nav-tentang"                onclick="closeNav()">TENTANG</a>
+    <a href="#produk"  id="nav-produk"                 onclick="closeNav()">PRODUK</a>
+    <a href="#contact" id="nav-contact"                onclick="closeNav()">CONTACT</a>
     <a href="login.html" class="btn-login-nav">LOGIN</a>
   </div>
 </nav>
@@ -169,7 +175,6 @@
   © 2026 Aliansi Padi Dan Polowijo Organik Boyolali · MANAJEMEN MUTU BERBASIS ELEKTRONIK (MMBE)
 </footer>
 
-<script src="">Sidebar.js</script>
 <script>
   // Nomor WhatsApp APPOLI (format internasional, tanpa tanda + / spasi)
   const NOMOR_WA_APPOLI = '6285326991206';
@@ -181,6 +186,16 @@
       `Terima kasih.`;
     const url = `https://wa.me/${NOMOR_WA_APPOLI}?text=${encodeURIComponent(pesan)}`;
     window.open(url, '_blank');
+  }
+
+  // ── Menu hamburger untuk HP/tablet ──
+  function toggleNav() {
+    document.getElementById('navLinks').classList.toggle('open');
+    document.getElementById('navToggle').classList.toggle('open');
+  }
+  function closeNav() {
+    document.getElementById('navLinks').classList.remove('open');
+    document.getElementById('navToggle').classList.remove('open');
   }
 </script>
 </body>
