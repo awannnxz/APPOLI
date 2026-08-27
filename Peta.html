@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Peta Lahan — Aliansi Padi Dan Polowijo Organik Boyolali</title>
+  <link rel="stylesheet" href="Sidebar.css"/>
+  <link rel="stylesheet" href="Peta.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="logo-row">
+      <div class="logo-icon">
+        <img src="logo-appoli-2.png"
+             style="width:28px;height:28px;object-fit:contain;" alt="padi"/>
+      </div>
+      <div>
+        <div class="logo-name">Aliansi Padi Dan Polowijo Organik Boyolali</div>
+        <div class="logo-sub">MANAJEMEN MUTU BERBASIS ELEKTRONIK (MMBE)</div>
+      </div>
+    </div>
+  </div>
+  <div class="sb-user">
+    <div class="av">A</div>
+    <div>
+      <div class="uname" id="sbUser">Tani</div>
+      <div class="urole">Petani</div>
+    </div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-lbl">Pengimputan Data</div>
+    <a class="sb-item"           href="Kontrak.html">      <span class="ic">1.</span> Kontrak</a>
+    <a class="sb-item active"    href="Peta Lahan.html">   <span class="ic">2.</span> Peta Lahan Petani</a>
+    <a class="sb-item"           href="Pendataan.html">    <span class="ic">3.</span> Pendataan</a>
+    <a class="sb-item"           href="Catatan Usaha.html"><span class="ic">4.</span> Catatan Usaha</a>
+    <a class="sb-item"           href="Inspeksi.html">     <span class="ic">5.</span> Inspeksi</a>
+    <div class="sb-item" onclick="toggleSub(this,'sub-kelompok')">
+      <span class="ic">6.</span> Nama Kelompok
+      <span style="margin-left:auto;font-size:11px;" id="arr-kelompok">&#9658;</span>
+    </div>
+    <div class="sb-sub" id="sub-kelompok">
+      <a class="sb-sub-item" href="Sketsa Lahan.html">Sketsa Lahan</a>
+      <a class="sb-sub-item" href="Analisa.html">Analisa Risiko</a>
+    </div>
+  </div>
+  <div class="sb-footer">
+    <button class="btn-logout" onclick="logout()">Keluar</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <h1>Peta Hamparan Lahan</h1>
+    <div class="tb-right">
+      <span class="tb-date" id="tbDate"></span>
+      <a href="index.html" class="tb-back">Beranda</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="panel">
+      <div class="panel-body">
+        <div class="form-peta">
+
+          <!-- KOP -->
+          <div class="kop-surat">
+            <div class="kop-logo">
+              <img src="logo-appoli-2.png" alt="Logo APPOLI"/>
+            </div>
+            <div class="kop-tengah">
+              <div class="kop-nama">APPOLI</div>
+              <div class="kop-full">Aliansi Petani Padi Organik Boyolali</div>
+              <div class="kop-alamat">
+                Dk. Sambi RT.02/02 Desa Sambi, Kec. Sambi, Kab. Boyolali<br>
+                Tel: 085326991206 &nbsp; Email: aliansi_po20@yahoo.com
+              </div>
+            </div>
+          </div>
+          <div class="kop-garis"></div>
+          <div class="form-judul">1. &nbsp; Peta Hamparan</div>
+
+          <!-- MODE SELECTOR -->
+          <div class="mode-bar">
+            <span class="mode-label">Mode :</span>
+            <button class="btn-mode active" id="btn-kelompok" onclick="setMode('kelompok')">Kelompok Tani</button>
+            <button class="btn-mode" id="btn-individu" onclick="setMode('individu')">Individu / Petani</button>
+            <span class="mode-hint" id="mode-hint">Gambar batas lahan kelompok tani</span>
+          </div>
+
+          <!-- SEARCH BAR -->
+          <div class="search-bar">
+            <input type="text" id="inp-cari"
+              placeholder="Cari lokasi atau koordinat (cth: -7.5234, 110.8456)..."
+              onkeydown="if(event.key==='Enter') cariLokasi()"/>
+            <button onclick="cariLokasi()">&#128269; Cari</button>
+          </div>
+          <div id="cari-error" class="cari-error">Lokasi tidak ditemukan. Coba masukkan koordinat langsung.</div>
+
+          <!-- PETA -->
+          <div id="map"></div>
+          <div class="peta-hint">
+            Gunakan toolbar di kiri peta untuk menggambar / mengedit batas lahan &bull;
+            Klik peta untuk menandai titik koordinat
+          </div>
+
+          <!-- KOORDINAT HASIL -->
+          <div class="koordinat-hasil">
+            <span class="koord-label">Titik Koordinat :</span>
+            <span id="hasil-koord" class="koord-value">— klik peta —</span>
+          </div>
+
+          <!-- KETERANGAN -->
+          <div class="keterangan-peta">
+            <div class="ket-title">Keterangan</div>
+            <div class="ket-row">
+              <span class="ket-label">Kelompok Tani</span>
+              <span class="ket-titik">:</span>
+              <input type="text" id="k_kelompok" placeholder="Nama kelompok tani"/>
+            </div>
+            <div class="ket-row">
+              <span class="ket-label">Luas</span>
+              <span class="ket-titik">:</span>
+              <input type="text" id="k_luas" placeholder="Luas lahan"/>
+            </div>
+            <div class="ket-row">
+              <span class="ket-label">Batas</span>
+              <span class="ket-titik">:</span>
+              <input type="text" id="k_batas" placeholder="Batas lahan"/>
+            </div>
+            <div class="ket-row">
+              <span class="ket-label">Titik Koordinat</span>
+              <span class="ket-titik">:</span>
+              <input type="text" id="k_koordinat" placeholder="Otomatis terisi" readonly/>
+            </div>
+          </div>
+
+          <div class="btn-row" style="margin-top:16px;">
+            <button class="btn-secondary" onclick="resetPeta()">Reset</button>
+            <button class="btn-primary" onclick="simpan()">Simpan</button>
+          </div>
+          <div class="alert-success" id="alertPeta" style="margin-top:10px;">Data lahan berhasil disimpan!</div>
+
+          <!-- HASIL SIMPAN -->
+          <div id="hasilSimpan" style="display:none;">
+            <div class="kop-garis" style="margin-top:20px;"></div>
+            <div class="form-judul" style="margin-bottom:10px;">Hasil Peta Tersimpan</div>
+            <div id="mapHasil" style="height:320px;border:1px solid #000;margin-bottom:10px;"></div>
+            <div class="keterangan-peta" id="ketHasil"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- DAFTAR -->
+    <div class="panel panel-daftar" style="margin-top:16px;">
+      <div class="panel-head"><h2>Daftar Lahan Tersimpan</h2></div>
+      <div style="padding:0 0 16px;">
+        <table class="tbl-lahan">
+          <thead>
+            <tr><th>No</th><th>Kelompok Tani</th><th>Luas</th><th>Batas</th><th>Koordinat</th><th>Aksi</th></tr>
+          </thead>
+          <tbody id="tblLahan">
+            <tr>
+              <td style="text-align:center;">1</td>
+              <td>Sari Mulyo Wates</td><td style="text-align:center;">2.5 Ha</td>
+              <td>Utara - Sungai</td><td>-7.5234, 110.8456</td>
+              <td><button class="btn-sm" onclick="pinLahan(-7.5234,110.8456,'Sari Mulyo Wates','2.5 Ha','Utara - Sungai')">Lihat Peta</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script src="Sidebar.js"></script>
+<script>
+// ── WARNA PER MODE ──
+const WARNA = {
+  kelompok: { color: '#FFA500', fillColor: '#FFA500', fillOpacity: 0.15 },
+  individu:  { color: '#FF0000', fillColor: '#FF0000', fillOpacity: 0.15 }
+};
+
+let activeMode = 'kelompok';
+let mapHasilInst = null;
+
+// ── INIT PETA ──
+const map = L.map('map', { zoomControl: true }).setView([-7.5234, 110.8456], 14);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
+}).addTo(map);
+
+// Layer untuk gambar
+const drawnItems = new L.FeatureGroup().addTo(map);
+
+// ── TOOLBAR DRAW ──
+const drawControl = new L.Control.Draw({
+  position: 'topleft',
+  draw: {
+    polygon:   { shapeOptions: WARNA.kelompok, showArea: true },
+    polyline:  { shapeOptions: { color: '#FFA500' } },
+    rectangle: { shapeOptions: WARNA.kelompok },
+    circle:    false,
+    marker:    false,
+    circlemarker: false
+  },
+  edit: { featureGroup: drawnItems, remove: true }
+});
+map.addControl(drawControl);
+
+// Setelah selesai gambar → tambah ke layer
+map.on(L.Draw.Event.CREATED, function(e) {
+  const layer = e.layer;
+  layer.setStyle(WARNA[activeMode]);
+  drawnItems.addLayer(layer);
+});
+
+// ── MODE ──
+function setMode(mode) {
+  activeMode = mode;
+  document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + mode).classList.add('active');
+  document.getElementById('mode-hint').textContent =
+    mode === 'kelompok'
+      ? 'Gambar batas lahan kelompok tani (garis oranye)'
+      : 'Gambar batas lahan per individu petani (garis merah)';
+
+  // Update warna toolbar
+  drawControl.setDrawingOptions({
+    polygon:   { shapeOptions: WARNA[mode] },
+    rectangle: { shapeOptions: WARNA[mode] },
+    polyline:  { shapeOptions: { color: mode === 'kelompok' ? '#FFA500' : '#FF0000' } }
+  });
+}
+
+// ── ICON MERAH ──
+const redIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconSize: [25,41], iconAnchor: [12,41], popupAnchor: [1,-34], shadowSize: [41,41]
+});
+
+let marker = null;
+
+function setPin(lat, lng, label) {
+  if (marker) map.removeLayer(marker);
+  marker = L.marker([lat, lng], { icon: redIcon })
+    .addTo(map)
+    .bindPopup(label || `<b>Koordinat:</b><br>${parseFloat(lat).toFixed(6)}, ${parseFloat(lng).toFixed(6)}`)
+    .openPopup();
+  const koord = `${parseFloat(lat).toFixed(6)}, ${parseFloat(lng).toFixed(6)}`;
+  document.getElementById('hasil-koord').textContent = koord;
+  document.getElementById('k_koordinat').value = koord;
+}
+
+// Klik peta → pin merah
+map.on('click', function(e) {
+  setPin(e.latlng.lat, e.latlng.lng);
+});
+
+// ── CARI LOKASI ──
+async function cariLokasi() {
+  const q = document.getElementById('inp-cari').value.trim();
+  const errEl = document.getElementById('cari-error');
+  errEl.style.display = 'none';
+  if (!q) return;
+
+  // Koordinat langsung
+  const match = q.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+  if (match) {
+    const lat = parseFloat(match[1]), lng = parseFloat(match[2]);
+    map.setView([lat, lng], 16);
+    setPin(lat, lng);
+    return;
+  }
+
+  // Cari via Nominatim
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`,
+      { headers: { 'Accept-Language': 'id' } }
+    );
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+      map.setView([lat, lng], 16);
+      setPin(lat, lng, `<b>${data[0].display_name.split(',')[0]}</b>`);
+    } else {
+      errEl.style.display = 'block';
+    }
+  } catch(e) { errEl.style.display = 'block'; }
+}
+
+// ── PIN DARI TABEL ──
+function pinLahan(lat, lng, kelompok, luas, batas) {
+  map.setView([lat, lng], 16);
+  setPin(lat, lng, `<b>${kelompok}</b><br>Luas: ${luas}`);
+  document.getElementById('k_kelompok').value = kelompok;
+  document.getElementById('k_luas').value     = luas;
+  document.getElementById('k_batas').value    = batas;
+  document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── SIMPAN ──
+function simpan() {
+  const kel   = document.getElementById('k_kelompok').value.trim();
+  const luas  = document.getElementById('k_luas').value.trim();
+  const batas = document.getElementById('k_batas').value.trim();
+  const koord = document.getElementById('k_koordinat').value.trim();
+
+  if (!kel) { alert('Nama Kelompok Tani wajib diisi!'); return; }
+
+  // Tampilkan hasil
+  const hasilDiv = document.getElementById('hasilSimpan');
+  hasilDiv.style.display = 'block';
+
+  // Isi keterangan hasil
+  document.getElementById('ketHasil').innerHTML = `
+    <div class="ket-title">Keterangan</div>
+    <div class="ket-row"><span class="ket-label">Kelompok Tani</span><span class="ket-titik">:</span><span>${kel}</span></div>
+    <div class="ket-row"><span class="ket-label">Luas</span><span class="ket-titik">:</span><span>${luas || '—'}</span></div>
+    <div class="ket-row"><span class="ket-label">Batas</span><span class="ket-titik">:</span><span>${batas || '—'}</span></div>
+    <div class="ket-row"><span class="ket-label">Titik Koordinat</span><span class="ket-titik">:</span><span>${koord || '—'}</span></div>
+  `;
+
+  // Buat peta hasil (copy layer yang sudah digambar)
+  setTimeout(() => {
+    if (mapHasilInst) { mapHasilInst.remove(); }
+
+    const center = marker ? marker.getLatLng() : map.getCenter();
+    mapHasilInst = L.map('mapHasil', { zoomControl: true, dragging: true }).setView(center, 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(mapHasilInst);
+
+    // Copy semua layer yang digambar
+    drawnItems.eachLayer(function(layer) {
+      const json = layer.toGeoJSON();
+      L.geoJSON(json, { style: WARNA[activeMode] }).addTo(mapHasilInst);
+    });
+
+    // Tambah pin merah jika ada
+    if (marker) {
+      const pos = marker.getLatLng();
+      L.marker([pos.lat, pos.lng], { icon: redIcon })
+        .addTo(mapHasilInst)
+        .bindPopup(`<b>${kel}</b>`).openPopup();
+    }
+
+    mapHasilInst.invalidateSize();
+    hasilDiv.scrollIntoView({ behavior: 'smooth' });
+  }, 100);
+
+  showAlert('alertPeta');
+}
+
+// ── RESET ──
+function resetPeta() {
+  if (!confirm('Reset semua data peta?')) return;
+  drawnItems.clearLayers();
+  if (marker) { map.removeLayer(marker); marker = null; }
+  document.getElementById('hasil-koord').textContent = '— klik peta —';
+  document.getElementById('inp-cari').value    = '';
+  document.getElementById('k_kelompok').value  = '';
+  document.getElementById('k_luas').value      = '';
+  document.getElementById('k_batas').value     = '';
+  document.getElementById('k_koordinat').value = '';
+  document.getElementById('hasilSimpan').style.display = 'none';
+}
+</script>
+
+</body>
+</html>
